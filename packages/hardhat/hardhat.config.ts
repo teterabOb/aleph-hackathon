@@ -21,7 +21,14 @@ const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.17",
+    compilers: [
+      {
+        version: "0.8.7",
+      },
+      {
+        version: "0.8.25"
+      }
+  ],
     settings: {
       optimizer: {
         enabled: true,
@@ -118,6 +125,14 @@ const config: HardhatUserConfig = {
       url: "https://sepolia.publicgoods.network",
       accounts: [deployerPrivateKey],
     },
+    avalancheFuji: {
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
+      accounts: [deployerPrivateKey]
+    },
+    dispatch: { 
+      url: "https://subnets.avax.network/dispatch/testnet/rpc",
+      accounts: [deployerPrivateKey]
+    }
   },
   // configuration for harhdat-verify plugin
   etherscan: {
