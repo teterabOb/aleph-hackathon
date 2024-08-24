@@ -4,15 +4,35 @@ pragma solidity ^0.8.18;
 import "../lib/contracts/teleporter/ITeleporterMessenger.sol";
 
 contract DispatchEcho {
-    // Address of Teleporter Messenger contract is the same for all chains
     ITeleporterMessenger public immutable messenger = ITeleporterMessenger(0x253b2784c75e510dD0fF1da844684a1aC0aa5fcf);
+
+    enum DispatchStatus {
+        Placed,
+        Transit,
+        Completed,
+        Failed
+    }
+
+    struct DispatchStruct {
+		uint256 id;
+		address clientAddress;
+		uint256 totalAmount;
+		address dispatcherAddress;
+		uint256 dispatcherAmount;
+		address businessAddress;
+		uint256 businessAmount;
+	}
+
+    mapping(uint256 => bool) public dispatchAssigned;
+    mapping(uint256 => DispatchStruct) public dispatches;
+    // Address of Teleporter Messenger contract is the same for all chains
 
     /**
      * @dev Sends a message to another chain.
      */
     function sendMessage(address destinationAddress, uint256 id, address dispatcherAddress, uint256 amount, uint256 gasLimit) external {
         bytes memory encodedFunctionCall = 
-        abi.encodeWithSignature("finalize(uint256,address,uint256", id, dispatcherAddress, amount);
+        abi.encodeWithSignature("finalize(uint256,address)", id, dispatcherAddress);
     
         messenger.sendCrossChainMessage(
             TeleporterMessageInput({
@@ -26,9 +46,23 @@ contract DispatchEcho {
         );
     }
 
-    function inputsToMessage(uint256 id, address receiver, uint256 amount) external pure returns (bytes memory) {
+    function inputsToMessage(uint256 id, address dispatcherAddress) external pure returns (bytes memory) {
         return 
-        abi.encodeWithSignature("finalize(uint256,address,uint256", id, dispatcherAddress, amount);
+        abi.encodeWithSignature("finalize(uint256,address)", id, dispatcherAddress);
+    }
+
+    function placeDispatch(
+            uint256 id, 
+            address clientAddress, 
+            uint256 totalAmount, 
+            address dispatcherAddress, 
+            uint256 dispatcherAmount, 
+            address businessAddress, 
+            uint256 businessAmount
+        ) external {
+        require(!dispatchAssigned[id], "Dispatch already assigned");
+        dispatches[id] = DispatchStruct(id, clientAddress, totalAmount, dispatcherAddress, dispatcherAmount, businessAddress, businessAmount);
+        dispatchAssigned[id] = true;
     }
 }
 

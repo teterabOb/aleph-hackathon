@@ -39,7 +39,7 @@ contract ReceiverCChain is ITeleporterReceiver {
         lastReceiver = receiver;
         lastAmount = amount;
         //(bool success, ) = ccipSender.call(message);
-        CCIPSender(ccipSender).transferUSDCCIP(id, receiver, amount);
+        //CCIPSender(ccipSender).transferUSDCCIP(id, receiver, amount);
 
         emit DataFromTeleporter(id, receiver, amount);
         emit ReceivedMessage(message);
