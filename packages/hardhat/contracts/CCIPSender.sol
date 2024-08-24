@@ -66,7 +66,7 @@ contract CCIPSender {
 		uint64 destinationChainSelector = 3478487238524512106;  
 		messages[id] = Messages(id, receiver, amount);
 		sentMessages[id] = true;
-		//sendCrossChainMessage(destinationChainSelector, receiver, address(_usdcToken), amount);
+		sendCrossChainMessage(destinationChainSelector, receiver, address(_usdcToken), amount);
 		emit TransferUSDCCIP(id, receiver, amount);
 	}
 
