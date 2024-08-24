@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   43113: {
     ReceiverCChain: {
-      address: "0xC0c8D804293BEBCeFF18A4222a2Fb4DE7d8aCaa0",
+      address: "0x002acc4D1c6bDa44d092F606b0571fa2f5eBdc56",
       abi: [
         {
           "anonymous": false,
@@ -207,7 +207,7 @@ const deployedContracts = {
       },
     },
     CCIPSender: {
-      address: "0x2B8327293600Aa39221590013697314eC32D4b2c",
+      address: "0x85ff74BDB31bD4615d6D5e50122e41Ab0940cBf9",
       abi: [
         {
           "inputs": [],
@@ -337,45 +337,6 @@ const deployedContracts = {
         },
         {
           "inputs": [],
-          "name": "myAmount",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "myId",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "myReceiver",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
           "name": "owner",
           "outputs": [
             {
@@ -424,11 +385,6 @@ const deployedContracts = {
               "internalType": "address",
               "name": "receiver",
               "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "text",
-              "type": "string"
             },
             {
               "internalType": "address",
@@ -527,7 +483,7 @@ const deployedContracts = {
   },
   779672: {
     SenderSubnet: {
-      address: "0xCd44694F9a2558a1B432bB0C58bBeDda5056B85A",
+      address: "0x95B77BbE60E9e94f6F0216eeD7D437D2CBbBfCAd",
       abi: [
         {
           "inputs": [
@@ -591,6 +547,11 @@ const deployedContracts = {
             {
               "internalType": "uint256",
               "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "gasLimit",
               "type": "uint256"
             }
           ],
