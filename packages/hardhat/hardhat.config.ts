@@ -129,8 +129,8 @@ const config: HardhatUserConfig = {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
       accounts: [deployerPrivateKey]
     },
-    dispatch: { 
-      url: "https://subnets.avax.network/dispatch/testnet/rpc",
+    echo: { 
+      url: "https://subnets.avax.network/echo/testnet/rpc",
       accounts: [deployerPrivateKey]
     }
   },
