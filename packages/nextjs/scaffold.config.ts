@@ -1,4 +1,30 @@
 import * as chains from "viem/chains";
+import { defineChain } from "viem";
+
+export const dispatchTestnet = defineChain({
+  id: 779672,
+  name: 'Dispatch L1 Testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Dispatch',
+    symbol: 'DS',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://subnets.avax.network/dispatch/testnet/rpc'],
+      webSocket: ['wss://subnets.avax.network/dispatch/testnet/rpc'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://subnets-test.avax.network/dispatch' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 5882,
+    },
+  },
+})
 
 export type ScaffoldConfig = {
   targetNetworks: readonly chains.Chain[];
@@ -10,7 +36,9 @@ export type ScaffoldConfig = {
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chains.hardhat],
+  //targetNetworks: [chains.avalancheFuji],
+  targetNetworks: [dispatchTestnet],
+  //targetNetworks: [chains.hardhat],
 
   // The interval at which your front-end polls the RPC servers for new data
   // it has no effect if you only target the local network (default is 4000)
