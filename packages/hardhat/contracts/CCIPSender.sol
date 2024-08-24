@@ -54,10 +54,6 @@ contract CCIPSender {
         owner = msg.sender;
     }
 
-    uint256 public myId;
-    address public myReceiver;
-    uint256 public myAmount;
-
     function transferUSDCCIP(
 		uint256 id,
 		address receiver,
@@ -67,29 +63,27 @@ contract CCIPSender {
 		//require(!sentMessages[id], "CCIPSender: message already sent");
 		// Transfer USD CCIP to receiver
 		// ChainSelector for Arbitrum Sepolia Hardcoded
-		//uint64 destinationChainSelector = 3478487238524512106;  
+		uint64 destinationChainSelector = 3478487238524512106;  
 		messages[id] = Messages(id, receiver, amount);
 		sentMessages[id] = true;
-		//sendCrossChainMessage(destinationChainSelector, receiver, text, address(_usdcToken), amount);
+		//sendCrossChainMessage(destinationChainSelector, receiver, address(_usdcToken), amount);
 		emit TransferUSDCCIP(id, receiver, amount);
 	}
 
 	function sendCrossChainMessage(
 		uint64 destinationChainSelector,
 		address receiver,
-		string calldata text,
 		address token,
 		uint256 amount
 	) public returns (bytes32 messageId) {
 		Client.EVM2AnyMessage memory message = _buildCCIPMessage(
 			receiver, // receiver
-			text, // message
 			token, // token USDC
 			amount, // monto
 			address(_linkToken) // LINK Token
 		);
 
-        /*
+
 		uint256 fees = router.getFee(destinationChainSelector, message);
 		if (fees > _linkToken.balanceOf(address(this))) {
 			revert NotEnoughBalanceForFees(_linkToken.balanceOf(address(this)), fees);
@@ -98,13 +92,11 @@ contract CCIPSender {
         //These lines can be removed if the contract is approved 
         //to spend the maximum amount of LINK and USDC
         // by calling `infiniteApproveLink` and `infiniteApproveUSDC`
-		_linkToken.approve(address(router), fees);
-        _usdcToken.approve(address(router), amount);
+		//_linkToken.approve(address(router), fees);
+        //_usdcToken.approve(address(router), amount);
 
 		messageId = router.ccipSend(destinationChainSelector, message);
-        */
-        emit EncodeedData(msg.data);
-		return bytes32(abi.encode("hola mundo"));
+        return messageId;
 	}
 
     function infinitApproveLink() onlyOwner public {
@@ -129,7 +121,6 @@ contract CCIPSender {
 
 	function _buildCCIPMessage(
 		address receiver,
-		string calldata text,
 		address token,
 		uint256 amount,
 		address feeTokenAddress
@@ -145,7 +136,7 @@ contract CCIPSender {
 		return
 			Client.EVM2AnyMessage({
 				receiver: abi.encode(receiver),
-				data: abi.encode(text),
+				data: "",
 				tokenAmounts: tokenAmounts,
 				extraArgs: Client._argsToBytes(
 					Client.EVMExtraArgsV1({ gasLimit: 200_000 })
