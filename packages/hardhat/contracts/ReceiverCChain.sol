@@ -20,6 +20,9 @@ contract ReceiverCChain is ITeleporterReceiver {
     event TransferResult(bool success);
     event DataFromTeleporter(uint256 id, address receiver, uint256 amount);
 
+    /**
+    * @dev Receives a message from another chain.
+     */
     function receiveTeleporterMessage(bytes32, address, bytes calldata message) external {
         // Only the Teleporter receiver can deliver a message.
         //require(msg.sender == address(messenger), "ReceiverOnSubnet: unauthorized TeleporterMessenger");
@@ -40,6 +43,25 @@ contract ReceiverCChain is ITeleporterReceiver {
 
         emit DataFromTeleporter(id, receiver, amount);
         emit ReceivedMessage(message);
+    }
+
+    /**
+     * @dev Sends a message to another chain.
+     */
+    function sendMessage(address destinationAddress, uint256 id, address receiver, uint256 amount, uint256 gasLimit) external {
+        bytes memory encodedFunctionCall = 
+        abi.encodeWithSignature("transferUSDCCIP(uint256,address,uint256", id, receiver, amount);
+    
+        messenger.sendCrossChainMessage(
+            TeleporterMessageInput({
+                destinationBlockchainID: 0x7fc93d85c6d62c5b2ac0b519c87010ea5294012d1e407030d6acd0021cac10d5, // L1-ECHO
+                destinationAddress: destinationAddress,
+                feeInfo: TeleporterFeeInfo({feeTokenAddress: address(0), amount: 0}),
+                requiredGasLimit: gasLimit,
+                allowedRelayerAddresses: new address[](0),
+                message: encodedFunctionCall
+            })
+        );
     }
 
     function updateCCIPSender(address newCCIPSender) external {
