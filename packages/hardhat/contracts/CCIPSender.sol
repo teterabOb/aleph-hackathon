@@ -64,7 +64,6 @@ contract CCIPSender {
         //require(msg.sender == receiverCChain, "CCIPSender: unauthorized ReceiverCCHain");
 		require(receiverCCIPArbitrum != address(0), "CCIPSender: receiver not set");
 		require(!sentMessages[id], "CCIPSender: message already sent");
-		//Transfer USD CCIP to receiver
 		// ChainSelector for Arbitrum Sepolia Hardcoded
 		uint64 destinationChainSelector = 3478487238524512106;  
 		sentMessages[id] = true;
@@ -85,7 +84,7 @@ contract CCIPSender {
 		Client.EVM2AnyMessage memory message = _buildCCIPMessage(
 			receiverCCIPArbitrum, // receiver ccip contract
 			address(_usdcToken), // token USDC
-			amount, // monto
+			amount, // amount
 			address(_linkToken), // LINK Token
 			data
 		);
