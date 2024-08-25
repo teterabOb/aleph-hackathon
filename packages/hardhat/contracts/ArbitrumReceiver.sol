@@ -19,7 +19,7 @@ contract ArbitrumReceiver is CCIPReceiver{
     mapping(uint256 => Messages) public messages;
     mapping(address => uint256) public balances;
 
-	constructor(address router) CCIPReceiver(router){}
+	constructor() CCIPReceiver(0x2a9C5afB0d0e4BAb2BCdaE109EC4b0c4Be15a165){}
 
 	function _ccipReceive(
 		Client.Any2EVMMessage memory message
