@@ -15,6 +15,7 @@ contract ArbitrumReceiver is CCIPReceiver{
     }
 
     mapping(uint256 => Messages) public messages;
+    mapping(address => uint256) public balances;
 
 	constructor(address router) CCIPReceiver(router){}
 
@@ -24,6 +25,13 @@ contract ArbitrumReceiver is CCIPReceiver{
 		(uint256 id, address businessAddress, uint256 businessAmount, address dispatcherAddress, uint256 dispatcherAmount) = 
         abi.decode(message.data, (uint256,address,uint256,address,uint256));
 		messages[id] = Messages(id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
-        
+        balances[dispatcherAddress] += dispatcherAmount;
+        balances[businessAddress] -= businessAmount;
 	}
+
+    function withdraw() public {
+        uint256 amount = balances[msg.sender];
+        balances[msg.sender] = 0;
+        msg.sender.transfer(amount);
+    }
 }
