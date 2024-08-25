@@ -58,6 +58,7 @@ contract DispatchEcho is ITeleporterReceiver {
     }
 
     function sendMessageMockUp(address destinationAddress, uint256 id, address dispatcherAddress, uint256 amount, uint256 gasLimit) external {
+        require(dispatchContract != address(0), "Dispatch contract not set");
         bytes memory encodedFunctionCall = 
         abi.encodeWithSignature("completeOrder(uint256,address)", id, dispatcherAddress);
         dispatchStatus[id] = DispatchStatus.Completed;

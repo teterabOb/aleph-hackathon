@@ -43,9 +43,7 @@ contract DispatchCChain is ITeleporterReceiver {
 	);
 	event ReceivedMessage(bytes message);
 
-	function calculateFee(uint256 amount) public view returns (uint256) {
-		return (amount * feePercentage) / 100;
-	}
+
 
 	function getDispatchStruct(
 		uint256 id,
@@ -55,7 +53,7 @@ contract DispatchCChain is ITeleporterReceiver {
 		address businessAddress,
 		uint256 amount /* + Fee = businessAmount */
 	) public view returns (DispatchStruct memory) {
-		uint256 fee = calculateFee(amount);
+		uint256 fee = _calculateFee(amount);
 		uint256 totalAmount = amount + fee;
 
 		DispatchStruct memory dispatchStruct = DispatchStruct({
@@ -98,7 +96,7 @@ contract DispatchCChain is ITeleporterReceiver {
         );
     }
 
-	function sendMessageMockUp(
+	function _sendMessageMockUp(
 			address destinationAddress, 
 			uint256 id, 
 			address clientAddress,
@@ -108,7 +106,7 @@ contract DispatchCChain is ITeleporterReceiver {
 			address businessAddress,
 			uint256 businessAmount,
 			uint256 gasLimit
-	) public {
+	) internal {
         bytes memory encodedFunctionCall = 
         abi.encodeWithSignature("placeDispatch(uint256,address,uint256,address,uint256,address,uint256)", 
 		id, clientAddress, totalAmount,dispatcherAddress, dispatcherAmount, businessAddress, businessAmount);
@@ -129,21 +127,18 @@ contract DispatchCChain is ITeleporterReceiver {
 			amount
 		);
 
-		/*
+		
 		require(
 			_usdcToken.balanceOf(msg.sender) > dispatchStruct.totalAmount,
 			"Dispatch CChain: Insufficient USDC"
 		);
-		*/
-
+		
 		// Remember to execute approve before calling this function
-		/*
 		_usdcToken.transferFrom(
 			msg.sender,
 			ccipSender, // CCIPSender will handle Cross-Chain Transfer
 			dispatchStruct.totalAmount
 		);
-		*/
 
 		dispatched[idCounter] = false;
 		dispatches[idCounter] = dispatchStruct;
@@ -152,7 +147,7 @@ contract DispatchCChain is ITeleporterReceiver {
 		// Send message to Dispatcher
 		// We are using the mockup function to simulate the message
 		// because teleporter is out of funds cuz of us
-		sendMessageMockUp(
+		_sendMessageMockUp(
 			destinationAddress,
 			idCounter,
 			msg.sender,
@@ -192,7 +187,11 @@ contract DispatchCChain is ITeleporterReceiver {
 		require(!dispatched[id], "Dispatch: already dispatched");		
 		dispatched[id] = true;
 		totalTransfered += ds.businessAmount;
-		//CCIPSender(ccipSender).transferUSDCCIP(id, ds.businessAddress, ds.businessAmount, ds.dispatcherAddress, ds.dispatcherAmount);
+		CCIPSender(ccipSender).transferUSDCCIP(id, ds.businessAddress, ds.businessAmount, ds.dispatcherAddress, ds.dispatcherAmount);
+	}
+
+	function _calculateFee(uint256 amount) internal view returns (uint256) {
+		return (amount * feePercentage) / 100;
 	}
 
 	function emergencyWithdrawUSDC() public onlyOwner {

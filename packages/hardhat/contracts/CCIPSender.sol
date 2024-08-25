@@ -68,13 +68,12 @@ contract CCIPSender {
 		bytes memory message = abi.encode("(uint256,address,uint256,address,uint256)", 
 		id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 		uint256 finalAmount = businessAmount + dispatcherAmount;
-		sendCrossChainMessage(destinationChainSelector, finalAmount, message);
+		_sendCrossChainMessage(finalAmount, message);
 		emit TeleporterSender(msg.sender);
 		emit TransferUSDCCIP(id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 	}
 
 	function _sendCrossChainMessage(
-		uint64 destinationChainSelector,
 		uint256 amount,
 		bytes memory data
 	) internal returns (bytes32 messageId) {
