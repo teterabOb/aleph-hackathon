@@ -1,6 +1,32 @@
 import * as chains from "viem/chains";
 import { defineChain } from "viem";
 
+export const dispatch = defineChain({
+  id: 779672,
+  name: 'Dispatch L1 Testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'DS',
+    symbol: 'DS',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://subnets.avax.network/dispatch/testnet/rpc'],
+      webSocket: ['wss://subnets.avax.network/dispatch/testnet/rpc'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://subnets-test.avax.network/dispatch' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 5882,
+    },
+  },
+})
+
+
 export const echoTestnet = defineChain({
   id: 173750,
   name: 'Echo L1 Testnet',
@@ -11,12 +37,12 @@ export const echoTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://subnets.avax.network/dispatch/testnet/rpc'],
-      webSocket: ['wss://subnets.avax.network/dispatch/testnet/rpc'],
+      http: ['https://subnets.avax.network/echo/testnet/rpc'],
+      webSocket: ['wss://subnets.avax.network/echo/testnet/rpc'],
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://subnets-test.avax.network/dispatch' },
+    default: { name: 'Explorer', url: 'https://subnets-test.avax.network/echo' },
   },
   contracts: {
     multicall3: {
@@ -37,7 +63,7 @@ export type ScaffoldConfig = {
 const scaffoldConfig = {
   // The networks on which your DApp is live
   targetNetworks: [chains.avalancheFuji],
-  //targetNetworks: [dispatchTestnet],
+  //targetNetworks: [dispatch],
   //targetNetworks: [chains.hardhat],
 
   // The interval at which your front-end polls the RPC servers for new data
