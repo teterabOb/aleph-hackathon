@@ -64,8 +64,8 @@ export const Header = () => {
   );
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
-      <div className="navbar-start w-auto lg:w-1/2">
+    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0  w-full z-20 shadow-md shadow-secondary justify-center px-0 sm:px-2">
+      {/**  <div className="navbar-start w-auto lg:w-1/2">
         <div className="lg:hidden dropdown" ref={burgerMenuRef}>
           <label
             tabIndex={0}
@@ -100,8 +100,10 @@ export const Header = () => {
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks />
         </ul>
-      </div>
-      <div className="navbar-end flex-grow mr-4">
+      </div> */}
+
+      <div className=" flex w-full justify-center items-center">
+        {/** */}
         <RainbowKitCustomConnectButton />
         <FaucetButton />
       </div>
