@@ -36,4 +36,19 @@ contract ArbitrumReceiver is CCIPReceiver{
         balances[msg.sender] = 0;
         IERC20(_usdcToken).transfer(msg.sender, amount);
     }
+
+    function converBytes(bytes memory data) public pure returns (uint256, address, uint256, address, uint256) {
+        return abi.decode(data, (uint256,address,uint256,address,uint256));
+    }
+    
+    function ccipInputsToBytes(
+		uint256 id,
+		address businessAddress,
+		uint256 businessAmount,
+		address dispatcherAddress,
+		uint256 dispatcherAmount
+	) public pure returns (bytes memory) {
+		return abi.encode("(uint256,address,uint256,address,uint256)", 
+            id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
+	}
 }

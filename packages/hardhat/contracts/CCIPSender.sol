@@ -65,8 +65,7 @@ contract CCIPSender {
 		require(receiverCCIPArbitrum != address(0), "CCIPSender: receiver not set");
 		require(!sentMessages[id], "CCIPSender: message already sent");		
 		sentMessages[id] = true;
-		bytes memory message = abi.encode("(uint256,address,uint256,address,uint256)", 
-		id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
+		bytes memory message = abi.encode(id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 		uint256 finalAmount = businessAmount + dispatcherAmount;
 		_sendCrossChainMessage(finalAmount, message);
 		emit TeleporterSender(msg.sender);
