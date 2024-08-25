@@ -1,13 +1,13 @@
 import * as chains from "viem/chains";
 import { defineChain } from "viem";
 
-export const dispatchTestnet = defineChain({
-  id: 779672,
-  name: 'Dispatch L1 Testnet',
+export const echoTestnet = defineChain({
+  id: 173750,
+  name: 'Echo L1 Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'Dispatch',
-    symbol: 'DS',
+    name: 'ECO',
+    symbol: 'ECO',
   },
   rpcUrls: {
     default: {
