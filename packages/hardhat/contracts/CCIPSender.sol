@@ -38,6 +38,7 @@ contract CCIPSender {
 	IERC20 private immutable _linkToken = IERC20(0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846);
     IERC20 private immutable _usdcToken = IERC20(0x5425890298aed601595a70AB815c96711a31Bc65);
 	IRouterClient public router = IRouterClient(0xF694E193200268f9a4868e4Aa017A0118C9a8177);
+	uint64 public destinationChainSelector = 3478487238524512106;  // Arbitrum Sepolia
     address public owner;
     address public receiverTeleporter;
 
@@ -61,26 +62,21 @@ contract CCIPSender {
 		address dispatcherAddress,
 		uint256 dispatcherAmount
 	) external {
-        //require(msg.sender == receiverCChain, "CCIPSender: unauthorized ReceiverCCHain");
 		require(receiverCCIPArbitrum != address(0), "CCIPSender: receiver not set");
-		require(!sentMessages[id], "CCIPSender: message already sent");
-		// ChainSelector for Arbitrum Sepolia Hardcoded
-		uint64 destinationChainSelector = 3478487238524512106;  
+		require(!sentMessages[id], "CCIPSender: message already sent");		
 		sentMessages[id] = true;
-		bytes memory message = abi
-		.encode("(uint256,address,uint256,address,uint256)", 
+		bytes memory message = abi.encode("(uint256,address,uint256,address,uint256)", 
 		id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 		uint256 finalAmount = businessAmount + dispatcherAmount;
-		sendCrossChainMessage(destinationChainSelector, finalAmount, message);
+		_sendCrossChainMessage(finalAmount, message);
 		emit TeleporterSender(msg.sender);
 		emit TransferUSDCCIP(id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 	}
 
-	function sendCrossChainMessage(
-		uint64 destinationChainSelector,
+	function _sendCrossChainMessage(
 		uint256 amount,
 		bytes memory data
-	) public returns (bytes32 messageId) {
+	) internal returns (bytes32 messageId) {
 		Client.EVM2AnyMessage memory message = _buildCCIPMessage(
 			receiverCCIPArbitrum, // receiver ccip contract
 			address(_usdcToken), // token USDC
@@ -112,10 +108,6 @@ contract CCIPSender {
 
     function withdrawUSDC() public onlyOwner {
         _usdcToken.safeTransfer(owner, _usdcToken.balanceOf(address(this)));
-    }
-
-    function decodeMessage(bytes calldata data) public pure returns (string memory) {
-        return abi.decode(data, (string));
     }
 
 	function updateArbitrumCCIPReceiver(address newReceiver) public onlyOwner {
