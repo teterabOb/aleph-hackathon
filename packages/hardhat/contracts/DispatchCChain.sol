@@ -4,6 +4,7 @@ import "../lib/contracts/teleporter/ITeleporterMessenger.sol";
 import "../lib/contracts/teleporter/ITeleporterReceiver.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {CCIPSender} from "./CCIPSender.sol";
+import {DispatchEcho} from "./DispatchEcho.sol";
 
 // This contract will be deployed on AVALANCHE
 contract DispatchCChain is ITeleporterReceiver {
@@ -13,6 +14,7 @@ contract DispatchCChain is ITeleporterReceiver {
 	address public owner;
     address public ccipSender;
 	bytes public lastMessage;
+	address public dispatchEcoContrat;
 	IERC20 private immutable _usdcToken = IERC20(0x5425890298aed601595a70AB815c96711a31Bc65);
 	ITeleporterMessenger public immutable messenger = ITeleporterMessenger(0x253b2784c75e510dD0fF1da844684a1aC0aa5fcf);
 
@@ -96,6 +98,25 @@ contract DispatchCChain is ITeleporterReceiver {
         );
     }
 
+	function sendMessageMockUp(
+			address destinationAddress, 
+			uint256 id, 
+			address clientAddress,
+			uint256 totalAmount,
+			address dispatcherAddress,
+			uint256 dispatcherAmount,
+			address businessAddress,
+			uint256 businessAmount,
+			uint256 gasLimit
+	) public {
+        bytes memory encodedFunctionCall = 
+        abi.encodeWithSignature("placeDispatch(uint256,address,uint256,address,uint256,address,uint256)", 
+		id, clientAddress, totalAmount,dispatcherAddress, dispatcherAmount, businessAddress, businessAmount);
+		DispatchEcho(dispatchEcoContrat).receiveTeleporterMessageMockUp(
+			encodedFunctionCall
+		);
+	}
+		
     // @param businessAddress The address of the business
 	// @param destinationAddress The address of the contract on the destination chain
     // @dev first function that has to be called
@@ -108,24 +129,30 @@ contract DispatchCChain is ITeleporterReceiver {
 			amount
 		);
 
+		/*
 		require(
 			_usdcToken.balanceOf(msg.sender) > dispatchStruct.totalAmount,
 			"Dispatch CChain: Insufficient USDC"
 		);
+		*/
 
 		// Remember to execute approve before calling this function
+		/*
 		_usdcToken.transferFrom(
 			msg.sender,
 			ccipSender, // CCIPSender will handle Cross-Chain Transfer
 			dispatchStruct.totalAmount
 		);
+		*/
 
 		dispatched[idCounter] = false;
 		dispatches[idCounter] = dispatchStruct;
 		emit Deposited(idCounter, msg.sender, businessAddress, amount);
 
 		// Send message to Dispatcher
-		sendMessage(
+		// We are using the mockup function to simulate the message
+		// because teleporter is out of funds cuz of us
+		sendMessageMockUp(
 			destinationAddress,
 			idCounter,
 			msg.sender,
@@ -136,17 +163,6 @@ contract DispatchCChain is ITeleporterReceiver {
 			amount,
 			gasLimit
 		);
-		/* 
-			address destinationAddress, 
-			uint256 id, 
-			address clientAddress,
-			uint256 totalAmount,
-			address dispatcherAddress,
-			uint256 dispatcherAmount,
-			address businessAddress,
-			uint256 businessAmount,
-			uint256 gasLimit
-		*/
 	}
 
 	function receiveTeleporterMessage(
@@ -154,29 +170,29 @@ contract DispatchCChain is ITeleporterReceiver {
 		address,
 		bytes calldata message
 	) external {
-		require(msg.sender == address(messenger),"ReceiverOnSubnet: unauthorized TeleporterMessenger");
 		(uint256 id, address dispatcherAddress) = abi
 			.decode(message[4:], (uint256, address));
-		lastMessage = message;
-		finalize(id, dispatcherAddress);
+		completeOrder(id, dispatcherAddress);
+		emit ReceivedMessage(message);
+	}
+
+	function receiveTeleporterMessageMockUp(
+		bytes calldata message
+	) external {
+		(uint256 id, address dispatcherAddress) = abi
+			.decode(message[4:], (uint256, address));
+		completeOrder(id, dispatcherAddress);
 		emit ReceivedMessage(message);
 	}
 
 	// @param id The id of the dispatch
-	function finalize(uint256 id, address dispatcherAddress) public {
+	function completeOrder(uint256 id, address dispatcherAddress) public {
 		DispatchStruct storage ds = dispatches[id];
 		ds.dispatcherAddress = dispatcherAddress;
-		require(!dispatched[id], "Dispatch: already dispatched");
-		/*	
-		require(
-			ds.clientAddress == msg.sender,
-			"Dispatch: unauthorized"
-		);
-		*/
-
+		require(!dispatched[id], "Dispatch: already dispatched");		
 		dispatched[id] = true;
 		totalTransfered += ds.businessAmount;
-		CCIPSender(ccipSender).transferUSDCCIP(id, ds.businessAddress, ds.businessAmount, ds.dispatcherAddress, ds.dispatcherAmount);
+		//CCIPSender(ccipSender).transferUSDCCIP(id, ds.businessAddress, ds.businessAmount, ds.dispatcherAddress, ds.dispatcherAmount);
 	}
 
 	function emergencyWithdrawUSDC() public onlyOwner {
@@ -192,8 +208,14 @@ contract DispatchCChain is ITeleporterReceiver {
         ccipSender = newCCIPSender;
     }
 
+	function updateDispatchEchoContract(address newDispatchEchoContract) external onlyOwner() {
+		require(newDispatchEchoContract != address(0), "ReceiverOnSubnet: invalid DispatchEcho address");
+		dispatchEcoContrat = newDispatchEchoContract;
+	}
+
 	modifier onlyOwner() {
-		require(msg.sender == owner, "Dispatch: unauthorized");
+		require(msg.sender == owner, "ReceiverOnSubnet: only owner");
 		_;
 	}
 }
+

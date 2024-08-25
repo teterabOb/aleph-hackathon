@@ -68,7 +68,7 @@ contract CCIPSender {
 		uint64 destinationChainSelector = 3478487238524512106;  
 		sentMessages[id] = true;
 		bytes memory message = abi
-		.encodePacked("ccipReceiver(uint256,address,uint256,address,uint256)", 
+		.encode("(uint256,address,uint256,address,uint256)", 
 		id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 		uint256 finalAmount = businessAmount + dispatcherAmount;
 		sendCrossChainMessage(destinationChainSelector, finalAmount, message);
