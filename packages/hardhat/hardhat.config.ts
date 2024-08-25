@@ -129,10 +129,14 @@ const config: HardhatUserConfig = {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
       accounts: [deployerPrivateKey]
     },
-    dispatch: { 
+    echo: { 
+      url: "https://subnets.avax.network/echo/testnet/rpc",
+      accounts: [deployerPrivateKey]
+    },
+    dispatch: {
       url: "https://subnets.avax.network/dispatch/testnet/rpc",
       accounts: [deployerPrivateKey]
-    }
+    },
   },
   // configuration for harhdat-verify plugin
   etherscan: {

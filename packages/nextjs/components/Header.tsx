@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +17,10 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "Home",
     href: "/",
+  },
+  {
+    label: "Payout",
+    href: "/payout",
   },
   {
     label: "Debug Contracts",

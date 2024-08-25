@@ -33,6 +33,7 @@ contract CCIPSender {
 		uint256 amount;
 	}
 
+	address public receiverCCIPArbitrum;
     // Info hardcoded for AVAX Fuji
 	IERC20 private immutable _linkToken = IERC20(0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846);
     IERC20 private immutable _usdcToken = IERC20(0x5425890298aed601595a70AB815c96711a31Bc65);
@@ -40,12 +41,11 @@ contract CCIPSender {
     address public owner;
     address public receiverTeleporter;
 
-    bool public updated = false;
 	mapping(uint256 => bool) public sentMessages;
-	mapping(uint256 => Messages) public messages;
 
-	event TransferUSDCCIP(uint256 id, address receiver, uint256 amount);
+	event TransferUSDCCIP(uint256 indexed id, address businessAddress, uint256 indexed businessAmount, address dispatcherAddress, uint256 indexed dispatcherAmount);
     event EncodeedData(bytes data);
+	event TeleporterSender(address teleporterSender);
 
     error InvalidUsdcToken();
 	error NotEnoughBalanceForFees(uint256 balance, uint256 fees);
@@ -56,44 +56,43 @@ contract CCIPSender {
 
     function transferUSDCCIP(
 		uint256 id,
-		address receiver,
-		uint256 amount
+		address businessAddress,
+		uint256 businessAmount,
+		address dispatcherAddress,
+		uint256 dispatcherAmount
 	) external {
         //require(msg.sender == receiverCChain, "CCIPSender: unauthorized ReceiverCCHain");
-		//require(!sentMessages[id], "CCIPSender: message already sent");
-		// Transfer USD CCIP to receiver
+		require(receiverCCIPArbitrum != address(0), "CCIPSender: receiver not set");
+		require(!sentMessages[id], "CCIPSender: message already sent");
 		// ChainSelector for Arbitrum Sepolia Hardcoded
 		uint64 destinationChainSelector = 3478487238524512106;  
-		messages[id] = Messages(id, receiver, amount);
 		sentMessages[id] = true;
-		//sendCrossChainMessage(destinationChainSelector, receiver, address(_usdcToken), amount);
-		emit TransferUSDCCIP(id, receiver, amount);
+		bytes memory message = abi
+		.encode("(uint256,address,uint256,address,uint256)", 
+		id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
+		uint256 finalAmount = businessAmount + dispatcherAmount;
+		sendCrossChainMessage(destinationChainSelector, finalAmount, message);
+		emit TeleporterSender(msg.sender);
+		emit TransferUSDCCIP(id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 	}
 
 	function sendCrossChainMessage(
 		uint64 destinationChainSelector,
-		address receiver,
-		address token,
-		uint256 amount
+		uint256 amount,
+		bytes memory data
 	) public returns (bytes32 messageId) {
 		Client.EVM2AnyMessage memory message = _buildCCIPMessage(
-			receiver, // receiver
-			token, // token USDC
-			amount, // monto
-			address(_linkToken) // LINK Token
+			receiverCCIPArbitrum, // receiver ccip contract
+			address(_usdcToken), // token USDC
+			amount, // amount
+			address(_linkToken), // LINK Token
+			data
 		);
-
 
 		uint256 fees = router.getFee(destinationChainSelector, message);
 		if (fees > _linkToken.balanceOf(address(this))) {
 			revert NotEnoughBalanceForFees(_linkToken.balanceOf(address(this)), fees);
 		}
-
-        //These lines can be removed if the contract is approved 
-        //to spend the maximum amount of LINK and USDC
-        // by calling `infiniteApproveLink` and `infiniteApproveUSDC`
-		//_linkToken.approve(address(router), fees);
-        //_usdcToken.approve(address(router), amount);
 
 		messageId = router.ccipSend(destinationChainSelector, message);
         return messageId;
@@ -119,11 +118,17 @@ contract CCIPSender {
         return abi.decode(data, (string));
     }
 
+	function updateArbitrumCCIPReceiver(address newReceiver) public onlyOwner {
+		require(newReceiver != address(0), "CCIPSender: invalid receiver address");
+		receiverCCIPArbitrum = newReceiver;
+	}
+
 	function _buildCCIPMessage(
 		address receiver,
 		address token,
 		uint256 amount,
-		address feeTokenAddress
+		address feeTokenAddress,
+		bytes memory data
 	) internal pure returns (Client.EVM2AnyMessage memory) {
 		Client.EVMTokenAmount[]
 			memory tokenAmounts = new Client.EVMTokenAmount[](1);
@@ -136,7 +141,7 @@ contract CCIPSender {
 		return
 			Client.EVM2AnyMessage({
 				receiver: abi.encode(receiver),
-				data: "",
+				data: data,
 				tokenAmounts: tokenAmounts,
 				extraArgs: Client._argsToBytes(
 					Client.EVMExtraArgsV1({ gasLimit: 200_000 })
