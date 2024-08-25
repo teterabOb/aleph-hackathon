@@ -8,8 +8,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useAccount } from "wagmi";
 import { Header } from "~~/components/Header";
 import { Address } from "~~/components/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth/useScaffoldWriteContract";
+import { setOrderAccepted } from "~~/store/slices/orderSlice";
 import { setAvailability } from "~~/store/slices/riderSlice";
-import { setOrderAccepted } from "~~/store/slices/orderSlice"; // Importa la acción para aceptar la orden
+// Importa la acción para aceptar la orden
 import { RootState } from "~~/store/store";
 
 const libraries: Libraries = ["places"];
@@ -22,9 +24,21 @@ const Delivering: NextPage = () => {
   const rider = useSelector((state: RootState) => state.rider); // Estado del repartidor
   const orderFromState = useSelector((state: RootState) => state.order.order); // Estado de la orden
 
-  const [timer, setTimer] = useState(20); // Estado del temporizador
   const [orderAccepted, setOrderAcceptedState] = useState(orderFromState?.isAccepted || false); // Estado de aceptación de la orden
-  const [isCounting, setIsCounting] = useState(true); // Estado para controlar el contador
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("DispatchEcho");
+
+  const takeOrder = async () => {
+    try {
+      await writeYourContractAsync({
+        functionName: "takeOrder",
+        args: [BigInt("3")],
+      });
+    } catch (e) {
+      console.error("Error setting greeting:", e);
+    }
+    setOrderAcceptedState(true); // Marca la orden como aceptada en el estado local
+    dispatch(setOrderAccepted(true)); // Marca la orden como aceptada en el estado global
+  };
 
   const mapContainerStyle: React.CSSProperties = {
     width: "100vw",
@@ -63,20 +77,6 @@ const Delivering: NextPage = () => {
     }
   }, [isLoaded]);
 
-  useEffect(() => {
-    if (rider.isAvailable && !orderAccepted && isCounting && timer > 0) {
-      const countdown = setTimeout(() => {
-        setTimer(timer - 1);
-      }, 1000);
-
-      if (timer === 0) {
-        handleOrderAcceptance(); // Acepta la orden automáticamente si el temporizador llega a 0
-      }
-
-      return () => clearTimeout(countdown);
-    }
-  }, [timer, rider.isAvailable, orderAccepted, isCounting]);
-
   // Maneja el click del botón GO
   const handleGoClick = () => {
     dispatch(setAvailability(!rider.isAvailable)); // Cambia la disponibilidad del repartidor
@@ -84,7 +84,6 @@ const Delivering: NextPage = () => {
 
   // Maneja el click del botón Cerrar
   const handleCloseClick = () => {
-    setIsCounting(false); // Detiene el contador
     dispatch(setAvailability(false)); // Cambia la disponibilidad del repartidor a false
   };
 
@@ -165,8 +164,13 @@ const Delivering: NextPage = () => {
 
               <div className="flex w-full items-center justify-center">
                 <div className="flex max-w-[350px] w-full h-[57px] bg-[#D76C45] justify-center rounded-[20px]">
-                  <button className="text-[18px} text-[#FFFFFF]" onClick={handleOrderAcceptance}>
-                    Accept order {timer}s
+                  <button
+                    className="text-[18px} text-[#FFFFFF]"
+                    onClick={() => {
+                      takeOrder();
+                    }}
+                  >
+                    Accept order
                   </button>
                 </div>
               </div>

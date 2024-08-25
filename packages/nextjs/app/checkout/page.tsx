@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { clearOrder, setOrder } from "../../store/slices/orderSlice";
@@ -7,7 +8,9 @@ import { GoogleMap, Libraries, Marker, useLoadScript } from "@react-google-maps/
 import { MapPinIcon } from "lucide-react";
 import type { NextPage } from "next";
 import { useDispatch, useSelector } from "react-redux";
+import { parseEther } from "viem";
 import { Header } from "~~/components/Header";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth/useScaffoldWriteContract";
 
 // Define el array de bibliotecas con el tipo correcto
 const libraries: Libraries = ["places"];
@@ -32,6 +35,29 @@ const Checkout: NextPage = () => {
   const [order, setOrderState] = useState<Order | null>(null);
   const dispatch = useDispatch();
   const orderFromState = useSelector((state: RootState) => state.order.order);
+  // payout(address businessAddress, uint256 amount, address destinationAddress, uint256 gasLimit)
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("DispatchCChain");
+
+  const makeOrder = async () => {
+    try {
+      if (order) {
+        // Actualizar el estado global de Redux con la orden
+        dispatch(setOrder(order));
+        console.log("Orden después de Payout:", orderFromState);
+      }
+      await writeYourContractAsync({
+        functionName: "payout",
+        args: [
+          "0x1234567890123456789012345678901234567890",
+          parseEther("0.1"),
+          "0x1234567890123456789012345678901234567890",
+          BigInt(100000),
+        ],
+      });
+    } catch (e) {
+      console.error("Error setting greeting:", e);
+    }
+  };
 
   const mapContainerStyle = {
     width: "100%",
@@ -54,7 +80,7 @@ const Checkout: NextPage = () => {
 
     // Cargar los datos iniciales de la orden en el estado local
     const initialOrder: Order = {
-      id:1,
+      id: 1,
       restaurant: "McDonald's",
       restaurantImage:
         "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/1200px-McDonald%27s_Golden_Arches.svg.png",
@@ -69,13 +95,6 @@ const Checkout: NextPage = () => {
     setOrderState(initialOrder);
   }, [dispatch]);
 
-  const handlePayout = () => {
-    if (order) {
-      // Actualizar el estado global de Redux con la orden
-      dispatch(setOrder(order));
-      console.log("Orden después de Payout:", orderFromState);
-    }
-  };
 
   const subtotal = order ? order.products.reduce((sum, product) => sum + product.quantity * product.price, 0) : 0;
   const total = subtotal + (order ? order.deliveryFee : 0);
@@ -151,7 +170,9 @@ const Checkout: NextPage = () => {
         <section className="flex w-full mt-8 items-center justify-center">
           <Link href={"/confirmation"} className="flex w-full items-center justify-center">
             <button
-              onClick={handlePayout}
+              onClick={() => {
+                makeOrder();
+              }}
               className="max-w-[350px] w-full bg-[#D76C45] h-[57px] font-bold rounded-md text-[#FFFFFF]"
             >
               Payout

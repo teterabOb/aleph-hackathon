@@ -1,15 +1,35 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useDispatch, useSelector } from "react-redux";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { RootState } from "~~/store/store";
 
 const HomePage: React.FC = () => {
+  const orderFromState = useSelector((state: RootState) => state.order.order);
+  const [isOrderAccepted, setIsOrderAccepted] = useState(false);
+
   const handleOrderClick = (connectWallet: () => void, isConnected: boolean) => {
     if (!isConnected) {
       connectWallet();
     }
   };
+
+  const { data: orderStatus } = useScaffoldReadContract({
+    contractName: "DispatchEcho",
+    functionName: "dispatchStatus", // Supongo que esta función devuelve el estado de la orden.
+    args: [BigInt(`3`)],
+  });
+
+  useEffect(() => {
+    if (orderStatus && orderStatus === 1) {
+      // Aquí asumo que 1 representa el estado "Accepted"
+      setIsOrderAccepted(true);
+    }
+  }, [orderStatus]);
 
   return (
     <div className="bg-[#FFFAF2] p-[20px] h-full min-h-screen justify-evenly flex flex-col">
@@ -43,8 +63,15 @@ const HomePage: React.FC = () => {
             return (
               <>
                 <div className="max-w-[350px] w-full bg-[#D76C45] h-[57px] rounded-[12px]">
-                  <Link href="/checkout">
-                    <button className="w-full h-full text-[#FFFFFF]">Make an order</button>
+                  <Link href={isOrderAccepted ? "/finish-order" : "/checkout"}>
+                    <button
+                      className="w-full h-full text-[#FFFFFF]"
+                      onClick={() => {
+                        handleOrderClick;
+                      }}
+                    >
+                      Make an order
+                    </button>
                   </Link>
                 </div>
                 <div className="max-w-[350px] w-full rounded-[12px] border border-solid border-[#D76C45] h-[57px]">
