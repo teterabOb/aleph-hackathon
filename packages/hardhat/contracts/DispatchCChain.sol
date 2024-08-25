@@ -86,7 +86,7 @@ contract DispatchCChain is ITeleporterReceiver {
     
         messenger.sendCrossChainMessage(
             TeleporterMessageInput({
-                destinationBlockchainID: 0x1278d1be4b987e847be3465940eb5066c4604a7fbd6e086900823597d81af4c1,
+                destinationBlockchainID: 0x9f3be606497285d0ffbb5ac9ba24aa60346a9b1812479ed66cb329f394a4b1c7,
                 destinationAddress: destinationAddress,
                 feeInfo: TeleporterFeeInfo({feeTokenAddress: address(0), amount: 0}),
                 requiredGasLimit: gasLimit,
@@ -164,19 +164,19 @@ contract DispatchCChain is ITeleporterReceiver {
 
 	// @param id The id of the dispatch
 	function finalize(uint256 id, address dispatcherAddress) public {
-		DispatchStruct storage dispatchStruct = dispatches[id];
-		dispatchStruct.dispatcherAddress = dispatcherAddress;
+		DispatchStruct storage ds = dispatches[id];
+		ds.dispatcherAddress = dispatcherAddress;
 		require(!dispatched[id], "Dispatch: already dispatched");
-
+		/*	
 		require(
-			dispatchStruct.clientAddress == msg.sender,
+			ds.clientAddress == msg.sender,
 			"Dispatch: unauthorized"
 		);
+		*/
 
 		dispatched[id] = true;
-		totalTransfered += dispatchStruct.businessAmount;
-		// Transfer USDC to business by CCIP
-		// Call CCIP Function
+		totalTransfered += ds.businessAmount;
+		CCIPSender(ccipSender).transferUSDCCIP(id, ds.businessAddress, ds.businessAmount, ds.dispatcherAddress, ds.dispatcherAmount);
 	}
 
 	function emergencyWithdrawUSDC() public onlyOwner {

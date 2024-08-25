@@ -41,12 +41,11 @@ contract CCIPSender {
     address public owner;
     address public receiverTeleporter;
 
-    //bool public updated = false;
 	mapping(uint256 => bool) public sentMessages;
-	//mapping(uint256 => Messages) public messages;
 
 	event TransferUSDCCIP(uint256 indexed id, address businessAddress, uint256 indexed businessAmount, address dispatcherAddress, uint256 indexed dispatcherAmount);
     event EncodeedData(bytes data);
+	event TeleporterSender(address teleporterSender);
 
     error InvalidUsdcToken();
 	error NotEnoughBalanceForFees(uint256 balance, uint256 fees);
@@ -68,13 +67,13 @@ contract CCIPSender {
 		//Transfer USD CCIP to receiver
 		// ChainSelector for Arbitrum Sepolia Hardcoded
 		uint64 destinationChainSelector = 3478487238524512106;  
-		//messages[id] = Messages(id, receiver, amount);
 		sentMessages[id] = true;
 		bytes memory message = abi
 		.encodePacked("ccipReceiver(uint256,address,uint256,address,uint256)", 
 		id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 		uint256 finalAmount = businessAmount + dispatcherAmount;
 		sendCrossChainMessage(destinationChainSelector, finalAmount, message);
+		emit TeleporterSender(msg.sender);
 		emit TransferUSDCCIP(id, businessAddress, businessAmount, dispatcherAddress, dispatcherAmount);
 	}
 
