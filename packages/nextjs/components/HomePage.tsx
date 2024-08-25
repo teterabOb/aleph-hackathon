@@ -1,13 +1,33 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { parseEther } from "viem";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth/useScaffoldWriteContract";
 
 const HomePage: React.FC = () => {
+  // payout(address businessAddress, uint256 amount, address destinationAddress, uint256 gasLimit)
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("DispatchCChain");
+
   const handleOrderClick = (connectWallet: () => void, isConnected: boolean) => {
     if (!isConnected) {
       connectWallet();
+    }
+  };
+
+  const makeOrder = async () => {
+    try {
+      await writeYourContractAsync({
+        functionName: "payout",
+        args: [
+          "0x1234567890123456789012345678901234567890",
+          parseEther("0.1"),
+          "0x1234567890123456789012345678901234567890",
+          100000,
+        ],
+      });
+    } catch (e) {
+      console.error("Error setting greeting:", e);
     }
   };
 
@@ -44,7 +64,14 @@ const HomePage: React.FC = () => {
               <>
                 <div className="max-w-[350px] w-full bg-[#D76C45] h-[57px] rounded-[12px]">
                   <Link href="/checkout">
-                    <button className="w-full h-full text-[#FFFFFF]">Make an order</button>
+                    <button
+                      className="w-full h-full text-[#FFFFFF]"
+                      onClick={() => {
+                        makeOrder();
+                      }}
+                    >
+                      Make an order
+                    </button>
                   </Link>
                 </div>
                 <div className="max-w-[350px] w-full rounded-[12px] border border-solid border-[#D76C45] h-[57px]">

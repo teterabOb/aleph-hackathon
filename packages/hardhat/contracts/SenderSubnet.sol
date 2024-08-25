@@ -10,7 +10,7 @@ contract SenderSubnet {
     /**
      * @dev Sends a message to another chain.
      */
-    function sendMessage(address destinationAddress, uint256 id, address receiver, uint256 amount) external {
+    function sendMessage(address destinationAddress, uint256 id, address receiver, uint256 amount, uint256 gasLimit) external {
         bytes memory encodedFunctionCall = 
         abi.encodeWithSignature("transferUSDCCIP(uint256,address,uint256", id, receiver, amount);
     
@@ -19,7 +19,7 @@ contract SenderSubnet {
                 destinationBlockchainID: 0x7fc93d85c6d62c5b2ac0b519c87010ea5294012d1e407030d6acd0021cac10d5,
                 destinationAddress: destinationAddress,
                 feeInfo: TeleporterFeeInfo({feeTokenAddress: address(0), amount: 0}),
-                requiredGasLimit: 250_000,
+                requiredGasLimit: gasLimit,
                 allowedRelayerAddresses: new address[](0),
                 message: encodedFunctionCall
             })
