@@ -49,9 +49,9 @@ const Checkout: NextPage = () => {
         functionName: "payout",
         args: [
           "0x1234567890123456789012345678901234567890",
-          parseEther("0.1"),
+          BigInt("1000"),
           "0x1234567890123456789012345678901234567890",
-          BigInt(100000),
+          BigInt(1000),
         ],
       });
     } catch (e) {
@@ -94,7 +94,6 @@ const Checkout: NextPage = () => {
     };
     setOrderState(initialOrder);
   }, [dispatch]);
-
 
   const subtotal = order ? order.products.reduce((sum, product) => sum + product.quantity * product.price, 0) : 0;
   const total = subtotal + (order ? order.deliveryFee : 0);

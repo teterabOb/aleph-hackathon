@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   43113: {
     CCIPSender: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x31BDcc1Cc978778Be29CE1e3A4c3180448F6687e",
       abi: [
         {
           inputs: [],
@@ -260,7 +260,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     DispatchCChain: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0x54C774C9E4c22E0D28D5B877e7632AC4bbF081fc",
       abi: [
         {
           inputs: [],
@@ -731,7 +731,7 @@ const deployedContracts = {
       },
     },
     DispatchEcho: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      address: "0x284CCF4408C56E594242dF0E45919FE32885A3e9",
       abi: [
         {
           inputs: [],

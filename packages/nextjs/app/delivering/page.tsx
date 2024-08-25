@@ -31,7 +31,7 @@ const Delivering: NextPage = () => {
     try {
       await writeYourContractAsync({
         functionName: "takeOrder",
-        args: [BigInt("3")],
+        args: [BigInt(3)],
       });
     } catch (e) {
       console.error("Error setting greeting:", e);
