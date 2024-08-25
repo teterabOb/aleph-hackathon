@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { RootState } from "~~/store/store";
 
+const idProject: string = process.env.ID_PROJECT || "";
+
 const HomePage: React.FC = () => {
   const orderFromState = useSelector((state: RootState) => state.order.order);
   const [isOrderAccepted, setIsOrderAccepted] = useState(false);
@@ -21,7 +23,7 @@ const HomePage: React.FC = () => {
   const { data: orderStatus } = useScaffoldReadContract({
     contractName: "DispatchEcho",
     functionName: "dispatchStatus", // Supongo que esta función devuelve el estado de la orden.
-    args: [BigInt(`3`)],
+    args: [BigInt(idProject)],
   });
 
   useEffect(() => {

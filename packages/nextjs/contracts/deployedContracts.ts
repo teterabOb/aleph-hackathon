@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   43113: {
     CCIPSender: {
-      address: "0x31BDcc1Cc978778Be29CE1e3A4c3180448F6687e",
+      address: "0xDAc9BF1456ba066Ef92B92Cd464a68765B8e88D1",
       abi: [
         {
           inputs: [],
@@ -1100,7 +1100,7 @@ const deployedContracts = {
   },
   421614: {
     ArbitrumReceiver: {
-      address: "0x2f0610E798DA279afF4109565D4F522E8915Ac7A",
+      address: "0x3D726351278f8FefB39A261B005669f0e306db5b",
       abi: [
         {
           inputs: [],

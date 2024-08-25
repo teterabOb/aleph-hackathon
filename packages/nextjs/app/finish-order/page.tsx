@@ -11,6 +11,7 @@ import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth/useScaffoldWriteContract";
 
 const libraries: Libraries = ["places"];
+const idProject: string = process.env.ID_PROJECT || "";
 
 const FinishOrder: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -31,7 +32,7 @@ const FinishOrder: NextPage = () => {
         functionName: "sendMessageMockUp",
         args: [
           "0x1234567890123456789012345678901234567890",
-          BigInt(3),
+          BigInt(idProject),
           "0x1234567890123456789012345678901234567890",
           BigInt(1000),
           BigInt(0),

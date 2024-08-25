@@ -16,6 +16,9 @@ import { RootState } from "~~/store/store";
 
 const libraries: Libraries = ["places"];
 
+const idProject: string = process.env.ID_PROJECT || "";
+
+
 const Delivering: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -31,7 +34,7 @@ const Delivering: NextPage = () => {
     try {
       await writeYourContractAsync({
         functionName: "takeOrder",
-        args: [BigInt(3)],
+        args: [BigInt(idProject)],
       });
     } catch (e) {
       console.error("Error setting greeting:", e);
